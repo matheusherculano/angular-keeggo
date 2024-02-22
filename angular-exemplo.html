@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemplo AngularJS</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular-animate.min.js"></script>
+
+    <link rel="stylesheet" href="loading-bar.min.css">
+    <script src="loading-bar.min.js"></script>
+
+</head>
+
+<body ng-app="meuApp">
+    <div ng-controller="minhaCtrl">
+        <h1>consulta endereço API CORREIOS com AngularJS</h1>
+        <label for="cep">CEP:</label>
+        <input type="text" id="cep" ng-model="cep" maxlength="8">
+
+        <button ng-click="buscar()" ng-disabled="cep.length != 8">Buscar Endereço</button>
+
+        <br>
+
+        <div ng-if="mostrarDados">
+            <h1>Endereço</h1>
+            <ul>
+                <li><strong>CEP:</strong> {{endereco.cep}}</li>
+                <li><strong>Logradouro:</strong> {{endereco.logradouro}}</li>
+                <li><strong>Complemento:</strong> {{endereco.complemento}}</li>
+                <li><strong>Bairro:</strong> {{endereco.bairro}}</li>
+                <li><strong>Localidade:</strong> {{endereco.localidade}}</li>
+                <li><strong>UF:</strong> {{endereco.uf}}</li>
+                <li><strong>IBGE:</strong> {{endereco.ibge}}</li>
+                <li><strong>DDD:</strong> {{endereco.ddd}}</li>
+            </ul>
+        </div>
+
+
+    </div>
+
+    <script>
+
+        angular.module('meuApp', ['angular-loading-bar', 'ngAnimate'])
+            .config(['cfpLoadingBarProvider', loaderNaRequisicao])
+            .controller('minhaCtrl', minhaCtrl);
+
+
+        function minhaCtrl($scope, $http) {
+            $scope.endereco = {};
+            $scope.mostrarDados = false;
+
+            $scope.buscar = function () {
+                chamadaAPI($scope.cep);
+            };
+
+
+            function chamadaAPI(cep) {
+                $http.get("https://viacep.com.br/ws/" + cep + "/json/")
+                    .then(function (response) {
+                        console.log(response.data);
+                        $scope.endereco = response.data;
+                        $scope.mostrarDados = true;
+                        $scope.cep = ""; //limpando o input apos request
+                    });
+            }
+            
+        }
+
+        function loaderNaRequisicao(cfpLoadingBarProvider) {
+                cfpLoadingBarProvider.includeSpinner = false;
+            }
+
+    </script>
+</body>
+
+</html>
